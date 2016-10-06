@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/NewAtlantis/Core/Scenes/abs_NEON.unity
+  isLoaded: 1
+  isActive: 1
