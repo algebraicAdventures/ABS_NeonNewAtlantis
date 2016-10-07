@@ -14,43 +14,75 @@ public class SynthController : MonoBehaviour {
     // 1 = 1 octave, 2 = 2 mid/high, 3 = 3 low/mid/high
     public float chordFrequency;
     // likelihood that tne next note played will be a chord
-    public int ticksUntilPlay;
-    bool generateNewChord = true;
+    int ticksUntilPlay;
     Chord currChord;
 
+    // 4-voice polyphony possible
+    public AudioSource[] voices = new AudioSource[4];
 
-	// Use this for initialization
-	void Start () {
-	
-	}
+    // AudioClips
+    public AudioClip[] clips1 = new AudioClip[36];
+    public AudioClip testclip;
+
+    // metronome
+    GameObject metro;
+
+
+    // Use this for initialization
+    void Start () {
+        metro = GameObject.FindObjectOfType<Metronome>().gameObject;
+        metro.GetComponent<Metronome>().OnTick += Tick;
+        for(int i = 0; i < 4; i++)
+        {
+            voices[i] = gameObject.AddComponent<AudioSource>();
+        }
+        generateNewChord();
+    }
 	
 	// Update is called once per frame
 	void Update () {
-        if(ticksUntilPlay <= 0)
-        {
-            //play currChord
-        }
-	    if (generateNewChord)
-        {
-            int prevLength = noteLength;
-            //noteLength = Random.Range(1, 5);
-            ticksUntilPlay = prevLength + Random.Range(0, noteMaxTriggerSpace + 1);
-            Note rootNote = new Note(Random.Range(1, 13), Random.Range(1, octaveRange + 1), noteLength);
-            currChord = new Chord(rootNote, 3, 1);
-            generateNewChord = false;
-        }
+
 	}
 
-    public void proceed()
+    public AudioSource AddAudio(AudioClip clip, bool loop, bool playAwake, float vol)
     {
-        if(ticksUntilPlay > 0)
+        AudioSource audio = gameObject.AddComponent<AudioSource>();
+        audio.clip = clip;
+        audio.loop = loop;
+        audio.playOnAwake = playAwake;
+        audio.volume = vol;
+        return audio;
+    }
+
+    public void generateNewChord()
+    {
+        int prevLength = noteLength;
+        //noteLength = Random.Range(1, 5);
+        ticksUntilPlay = prevLength + Random.Range(0, noteMaxTriggerSpace);
+        Note rootNote = new Note(Random.Range(1, 13), Random.Range(1, octaveRange + 1), noteLength);
+        currChord = new Chord(rootNote, Random.Range(1, 5), 1);
+    }
+
+    public void Tick(Metronome metro)
+    {
+        Debug.Log("tick");
+        if(ticksUntilPlay <= 0)
         {
-            ticksUntilPlay--;
+            for (int i = 0; i < currChord.chordForm; i++)
+            {
+                voices[i].timeSamples = 0;
+                voices[i].PlayOneShot(clips1[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree], 1.0F);
+                //voice1.PlayOneShot(testclip, 1.0F);
+                Debug.Log("Playing " + currChord.notes[i].octave + "-" + currChord.notes[i].degree + "----" + currChord.chordForm + "-" + currChord.chordHarmonicContent);
+            }
+            generateNewChord();
         }
         else
         {
-            generateNewChord = true;
+            ticksUntilPlay--;
+
         }
+
     }
 }
 
