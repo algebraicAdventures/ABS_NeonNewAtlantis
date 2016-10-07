@@ -21,7 +21,9 @@ public class SynthController : MonoBehaviour {
     public AudioSource[] voices = new AudioSource[4];
 
     // AudioClips
-    public AudioClip[] clips1 = new AudioClip[36];
+    public AudioClip[] clipsShort = new AudioClip[36];
+    public AudioClip[] clipsMed = new AudioClip[36];
+    public AudioClip[] clipsLong = new AudioClip[36];
     public AudioClip testclip;
 
     // metronome
@@ -57,9 +59,9 @@ public class SynthController : MonoBehaviour {
     public void generateNewChord()
     {
         int prevLength = noteLength;
-        //noteLength = Random.Range(1, 5);
+        noteLength = Random.Range(1, 5);
         ticksUntilPlay = prevLength + Random.Range(0, noteMaxTriggerSpace);
-        Note rootNote = new Note(Random.Range(1, 13), Random.Range(1, octaveRange + 1), noteLength);
+        Note rootNote = new Note(Random.Range(1, 13), Random.Range(1, octaveRange + 1), Random.Range(1, 4));
         currChord = new Chord(rootNote, Random.Range(1, 5), 1);
     }
 
@@ -71,7 +73,18 @@ public class SynthController : MonoBehaviour {
             for (int i = 0; i < currChord.chordForm; i++)
             {
                 voices[i].timeSamples = 0;
-                voices[i].PlayOneShot(clips1[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree], 1.0F);
+                switch (currChord.notes[0].length)
+                {
+                    case 1:
+                        voices[i].PlayOneShot(clipsShort[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree], 1.0F);
+                        break;
+                    case 2:
+                        voices[i].PlayOneShot(clipsMed[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree], 1.0F);
+                        break;
+                    case 3:
+                        voices[i].PlayOneShot(clipsLong[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree], 1.0F);
+                        break;
+                }
                 //voice1.PlayOneShot(testclip, 1.0F);
                 Debug.Log("Playing " + currChord.notes[i].octave + "-" + currChord.notes[i].degree + "----" + currChord.chordForm + "-" + currChord.chordHarmonicContent);
             }
