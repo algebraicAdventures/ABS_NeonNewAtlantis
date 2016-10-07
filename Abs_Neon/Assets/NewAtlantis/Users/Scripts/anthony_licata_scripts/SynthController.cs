@@ -4,16 +4,20 @@ using System.Collections;
 public class SynthController : MonoBehaviour {
 
     public int noteLength = 1;
-    // 1 = 1/16, 2 = 1/8, 3 = 1/4, 4 = 1/2, 5 = 1
+    // 1 = short, 2 = med, 3 = long
     public int noteMaxTriggerSpace;
+    public int noteMinTriggerSpace;
     // likelihood that a note will be played on the next tick (according to noteTriggerResolution)
-    public int noteTriggerResolution;
-    // Tick to (possibly) trigger a note on
-    // 1 = 1/16, 2 = 1/8, 3 = 1/4, 4 = 1/2, 5 = 1
     public int octaveRange;
     // 1 = 1 octave, 2 = 2 mid/high, 3 = 3 low/mid/high
     public float chordFrequency;
     // likelihood that tne next note played will be a chord
+    // range 0.0F-1.0F
+    public int masterKey;
+    // 1 - major, 2 - minor
+    // implement more later
+    public int keyRoot;
+    // 1 - C, 2 - C#, 3 - D...
     int ticksUntilPlay;
     Chord currChord;
 
@@ -46,6 +50,26 @@ public class SynthController : MonoBehaviour {
 
 	}
 
+//    int[] KeyToInts()
+//    {
+//        int[] ints;
+//        switch (masterKey)
+//        {
+//            case 1:
+//                ints = { keyRoot, keyRoot + 2, keyRoot + 4, keyRoot + 5, keyRoot + 7, keyRoot + 9, keyRoot + 11};
+//                break;
+//            case 2:
+//                ints = { keyRoot, keyRoot + 2, keyRoot + 3, keyRoot + 5, keyRoot + 7, keyRoot + 8, keyRoot + 10};
+//                break;
+//        }
+//        return ints;
+//    }
+
+    int RestrictedRandom(int[] allowed)
+    {
+        return allowed[Random.Range(0, allowed.Length)];
+    }
+
     public AudioSource AddAudio(AudioClip clip, bool loop, bool playAwake, float vol)
     {
         AudioSource audio = gameObject.AddComponent<AudioSource>();
@@ -59,10 +83,16 @@ public class SynthController : MonoBehaviour {
     public void generateNewChord()
     {
         int prevLength = noteLength;
-        noteLength = Random.Range(1, 5);
-        ticksUntilPlay = prevLength + Random.Range(0, noteMaxTriggerSpace);
+        noteLength = Random.Range(1, 4);
+        ticksUntilPlay = prevLength + Random.Range(noteMinTriggerSpace, noteMaxTriggerSpace);
         Note rootNote = new Note(Random.Range(1, 13), Random.Range(1, octaveRange + 1), Random.Range(1, 4));
-        currChord = new Chord(rootNote, Random.Range(1, 5), 1);
+        float isChord = Random.Range(0F, 1F);
+        int form = 1;
+        if(isChord <= chordFrequency)
+        {
+            form = Random.Range(1, 5);
+        }
+        currChord = new Chord(rootNote, form, 1);
     }
 
     public void Tick(Metronome metro)

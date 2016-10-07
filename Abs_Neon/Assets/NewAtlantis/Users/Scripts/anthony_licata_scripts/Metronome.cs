@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+// Metronome.cs by Julien Noble, 2013
+// http://cubeslam.net/2013/12/19/unity-metronome-like-a-pro/
+
 public delegate void MetronomeEvent(Metronome metronome);
 
 public class Metronome : MonoBehaviour

@@ -228,6 +228,7 @@
     <Compile Include="Assets\NewAtlantis\TRS Gyzmo\Scripts\Gyzmo\LinkGyzmoPositionToPointPosition.cs" />
     <Compile Include="Assets\NewAtlantis\TRS Gyzmo\Scripts\Selection\SelectorScript.cs" />
     <Compile Include="Assets\NewAtlantis\TRS Gyzmo\Scripts\TRS_Gizmo.cs" />
+    <Compile Include="Assets\NewAtlantis\Users\Scripts\anthony_licata_scripts\BuildingController.cs" />
     <Compile Include="Assets\NewAtlantis\Users\Scripts\anthony_licata_scripts\Metronome.cs" />
     <Compile Include="Assets\NewAtlantis\Users\Scripts\anthony_licata_scripts\SynthController.cs" />
     <Compile Include="Assets\NewAtlantis\Users\Scripts\ben_scripts\FlockManager.cs" />
