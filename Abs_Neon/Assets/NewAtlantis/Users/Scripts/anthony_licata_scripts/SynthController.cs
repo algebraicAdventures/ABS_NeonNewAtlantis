@@ -20,6 +20,7 @@ public class SynthController : MonoBehaviour {
     // 1 - C, 2 - C#, 3 - D...
     int ticksUntilPlay;
     Chord currChord;
+    public float intensity = 0.0F;
 
     // 4-voice polyphony possible
     public AudioSource[] voices = new AudioSource[4];
@@ -31,13 +32,12 @@ public class SynthController : MonoBehaviour {
     public AudioClip testclip;
 
     // metronome
-    GameObject metro;
-
+    Metronome metro;
 
     // Use this for initialization
     void Start () {
-        metro = GameObject.FindObjectOfType<Metronome>().gameObject;
-        metro.GetComponent<Metronome>().OnTick += Tick;
+        metro = FindObjectOfType<Metronome>();
+        metro.OnTick += Tick;
         for(int i = 0; i < 4; i++)
         {
             voices[i] = gameObject.AddComponent<AudioSource>();
@@ -47,23 +47,35 @@ public class SynthController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        intensity = metro.BPM / 8 + chordFrequency * 50 + (5 - noteMaxTriggerSpace - noteMinTriggerSpace) * 5 ; 
+    }
 
-	}
-
-//    int[] KeyToInts()
-//    {
-//        int[] ints;
-//        switch (masterKey)
-//        {
-//            case 1:
-//                ints = { keyRoot, keyRoot + 2, keyRoot + 4, keyRoot + 5, keyRoot + 7, keyRoot + 9, keyRoot + 11};
-//                break;
-//            case 2:
-//                ints = { keyRoot, keyRoot + 2, keyRoot + 3, keyRoot + 5, keyRoot + 7, keyRoot + 8, keyRoot + 10};
-//                break;
-//        }
-//        return ints;
-//    }
+    int[] KeyToInts() {
+        int length = 12;
+        if (masterKey > 0)
+        {
+            length = 7;
+        }
+        int[] ints = new int[length];
+        switch (masterKey)
+        {
+            case 0:
+                for(int i = 0; i < length; i++)
+                {
+                    ints[i] = i + 1;
+                }
+                break;
+            case 1:
+                int[] major = new int[7] { keyRoot, keyRoot + 2, keyRoot + 4, keyRoot + 5, keyRoot + 7, keyRoot + 9, keyRoot + 11};
+                major.CopyTo(ints, 0);
+                break;
+            case 2:
+                int[] minor = new int[7] { keyRoot, keyRoot + 2, keyRoot + 3, keyRoot + 5, keyRoot + 7, keyRoot + 8, keyRoot + 10};
+                minor.CopyTo(ints, 0);
+                break;
+        }
+        return ints;
+    }
 
     int RestrictedRandom(int[] allowed)
     {
@@ -85,7 +97,7 @@ public class SynthController : MonoBehaviour {
         int prevLength = noteLength;
         noteLength = Random.Range(1, 4);
         ticksUntilPlay = prevLength + Random.Range(noteMinTriggerSpace, noteMaxTriggerSpace);
-        Note rootNote = new Note(Random.Range(1, 13), Random.Range(1, octaveRange + 1), Random.Range(1, 4));
+        Note rootNote = new Note(RestrictedRandom(KeyToInts()), Random.Range(1, octaveRange + 1), Random.Range(1, 4));
         float isChord = Random.Range(0F, 1F);
         int form = 1;
         if(isChord <= chordFrequency)
@@ -106,13 +118,13 @@ public class SynthController : MonoBehaviour {
                 switch (currChord.notes[0].length)
                 {
                     case 1:
-                        voices[i].PlayOneShot(clipsShort[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree], 1.0F);
+                        voices[i].PlayOneShot(clipsShort[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree - 1], 1.0F);
                         break;
                     case 2:
-                        voices[i].PlayOneShot(clipsMed[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree], 1.0F);
+                        voices[i].PlayOneShot(clipsMed[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree - 1], 1.0F);
                         break;
                     case 3:
-                        voices[i].PlayOneShot(clipsLong[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree], 1.0F);
+                        voices[i].PlayOneShot(clipsLong[(currChord.notes[i].octave - 1) * 12 + currChord.notes[i].degree - 1], 1.0F);
                         break;
                 }
                 //voice1.PlayOneShot(testclip, 1.0F);
