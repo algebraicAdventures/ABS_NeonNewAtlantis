@@ -3,11 +3,11 @@ using System.Collections;
 
 public class BuildingController : MonoBehaviour {
 
-    public Color colorStartMain = Color.red;
-    public Color colorEndMain = Color.green;
-    public Color colorStartBevel = Color.blue;
-    public Color colorEndBevel = Color.yellow;
-    public float durationMain = 1.0F;
+    public Color colorStartMain = new Color(0.176f,0,0);
+    public Color colorEndMain = new Color(0,0,0.176f);
+    public Color colorStartBevel = new Color(0.941f, 0.278f, 0.918f);
+    public Color colorEndBevel = new Color(0,1f,.941f);
+    public float durationMain = 5.0F;
     public float durationBevel = 1.0F;
     public Material[] materials;
     public Renderer rend;

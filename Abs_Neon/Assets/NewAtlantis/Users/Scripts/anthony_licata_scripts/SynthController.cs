@@ -34,10 +34,23 @@ public class SynthController : MonoBehaviour {
     // metronome
     Metronome metro;
 
+    // control points
+    public GameObject[] controls = new GameObject[8];
+    public Vector3[] initialPosns = new Vector3[8];
+    private float[] distances = new float[8];
+
+    public float distClamp = 3f;
+
     // Use this for initialization
     void Start () {
         metro = FindObjectOfType<Metronome>();
         metro.OnTick += Tick;
+
+        for(int i = 0;  i < controls.Length; i++)
+        {
+            initialPosns[i] = controls[i].transform.localPosition;
+        }
+
         for(int i = 0; i < 4; i++)
         {
             voices[i] = gameObject.AddComponent<AudioSource>();
@@ -47,7 +60,36 @@ public class SynthController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        intensity = metro.BPM / 8 + chordFrequency * 50 + (5 - noteMaxTriggerSpace - noteMinTriggerSpace) * 5 ; 
+        intensity = metro.BPM / 8 + chordFrequency * 50 + (5 - noteMaxTriggerSpace - noteMinTriggerSpace) * 5 ;
+        CalculateClampedDistances();
+        noteLength = (int) map(distances[0], 0f, distClamp, 0f, 3f);
+        noteMaxTriggerSpace = (int)map(distances[1], 0f, distClamp, 0f, 6f);
+        noteMinTriggerSpace = (int)map(distances[2], 0f, distClamp, 0f, 6f);
+        octaveRange = (int)map(distances[3], 0f, distClamp, 1f, 2f);
+        chordFrequency = (int)map(distances[4], 0f, distClamp, 0f, 1f);
+        masterKey = (int)map(distances[5], 0f, distClamp, 1f, 2f);
+        keyRoot = (int)map(distances[6], 0f, distClamp, 1f, 12f);
+        int tempBPM = (int)map(distances[7], 0f, distClamp, 50, 400);
+        if(tempBPM != metro.BPM)
+        {
+            metro.BPM = tempBPM;
+            metro.StopAllCoroutines();
+            metro.StartMetronome();
+        }
+        
+    }
+
+    void CalculateClampedDistances()
+    {
+        for(int i = 0; i < controls.Length; i++)
+        {
+            distances[i] = Mathf.Clamp(Vector3.Distance(controls[i].transform.localPosition, initialPosns[i]), 0, distClamp);
+        }
+    }
+
+    public static float map( float value, float leftMin, float leftMax, float rightMin, float rightMax )  
+    {
+        return rightMin + ( value - leftMin ) * ( rightMax - rightMin ) / ( leftMax - leftMin );
     }
 
     int[] KeyToInts() {
